@@ -1,3 +1,4 @@
+#representa a  la tabla
 from config.databases import Base 
 from sqlalchemy import Column, Integer, String, Float,Date 
 from config.databases import meta

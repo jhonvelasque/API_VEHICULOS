@@ -21,10 +21,15 @@ class SedeService():
         self.db.add(new_sede)
         self.db.commit()
         return "se logro"
-        
+
     def update_sede(self,id:int, data:Sedes):
         sede=self.db.query(sedesModel).filter(sedesModel.idSede == id).first()
         sede.nombre = data.nombre
         sede.ubicacion=data.ubicacion
         self.db.commit()
         return  
+
+    def delete_sede(self,id:int):
+        self.db.query(sedesModel).filter(sedesModel.idSede==id).delete()
+        self.db.commit()
+        return

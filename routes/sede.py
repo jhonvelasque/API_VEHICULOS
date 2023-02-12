@@ -63,9 +63,8 @@ def update_sedes(id:int ,sede:Sedes)->dict:
 @sede.delete("/sede/{id}",tags=['sede'],response_model=dict,status_code=200)
 def delete_sede(id:int)->dict:
     db=Session()
-    result=db.query(sedesModel).filter(sedesModel.idSede==id).first()
+    result:sedesModel= db.query(sedesModel).filter(sedesModel.idSede==id).first()
     if not result:
         return JSONResponse(status_code=404,content={'message':"no encontrado"})
-    db.delete(result)
-    db.commit()
+    SedeService(db).delete_sede(id)
     return JSONResponse(status_code=200,content=jsonable_encoder(result))

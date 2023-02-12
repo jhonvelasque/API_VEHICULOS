@@ -1,3 +1,4 @@
+#la esquema de la tabla para ingresar datos mas rapido
 from pydantic import BaseModel
 from typing import Optional
 
