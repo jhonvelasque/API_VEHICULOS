@@ -1,0 +1,10 @@
+id_canal,tipo_canal,canal
+1,Publicidad,Publicidad en la radio
+2,Publicidad,Publicidad en Google
+3,Publicidad,Newsletter
+4,Ventas,Email en frío
+5,Publicidad,Publicidad en Facebook
+6,Otros,Desconocido
+7,Referido,Referido por otro cliente
+8,Ventas,CRM
+9,Ventas,Llamado en frío
