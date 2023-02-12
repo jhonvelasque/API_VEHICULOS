@@ -11,6 +11,7 @@ from schemas.sede import Sedes
 # CREAR PETICIONES
 from fastapi.responses import HTMLResponse ,JSONResponse
 from fastapi.encoders import jsonable_encoder
+# incluyendo servicios
 from services.sedes import SedeService
 
 Base.metadata.create_all(bind=engine)
@@ -21,18 +22,19 @@ def get_sedes()->list[Sedes]:
     result=SedeService(db).get_sedes()
     return JSONResponse(status_code=200,content=jsonable_encoder(result))
 
-@sede.get("/sede/{id}",tags=['sede'],response_model=Sedes)
-def get_sede(id:int)->Sedes:
+@sede.get("/sede/{id}",tags=['sede'],response_model=Sedes,status_code=200)
+def get_sede(id:int) -> Sedes:
     db=Session()
-    result=db.query(sedesModel).filter(sedesModel.idSede== id ).first()
+    result=SedeService(db).get_sede(id)
     if not result:
         return JSONResponse(status_code=404 ,content={"message":'no encontrado'})
+    
     return JSONResponse(status_code=200,content=jsonable_encoder(result))
 
-@sede.get("/sede/nombre",tags=['sede'],response_model=list[Sedes],status_code=200)
+@sede.get("/sede/",tags=['sede'],response_model=list[Sedes],status_code=200)
 def get_sedes_by_nombre(nombre:str)->list[Sedes] :
     db=Session()
-    result=db.query(sedesModel).filter(sedesModel.nombre == nombre).first()
+    result=SedeService(db).get_sede_for_name(nombre)
     if not result:
         return JSONResponse(status_code=404,content={"message":'no encontrado'})
     return JSONResponse(status_code=202,content=jsonable_encoder(result))
@@ -51,13 +53,11 @@ def create_sede(sede:Sedes) ->dict:
 def update_sedes(id:int ,sede:Sedes)->dict:
     db=Session()
     #filtrando por id
-    result=db.query(sedesModel).filter(sedesModel.idSede==id).first()
+    result=SedeService(db).get_sede(id)
     if not result:
         return JSONResponse(status_code=404 ,content={"message":'no encontrado'})
     #introduciendo los valores de la clase se al resultado
-    result.nombre =sede.nombre
-    result.ubicacion=sede.ubicacion
-    db.commit()
+    SedeService(db).update_sede(id,sede)
     return JSONResponse(status_code=200,content={"mensaje":"se ha modificado la sede"})
 
 @sede.delete("/sede/{id}",tags=['sede'],response_model=dict,status_code=200)

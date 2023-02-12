@@ -7,20 +7,21 @@ class SedeService():
     def get_sedes(self):
         result=self.db.query(sedesModel).all()
         return result
-
+    #nota este metodo no debe ser iguala la funcion creada 
     def get_sede(self,id):
-        result=self.db.query(sedesModel).filter(sedesModel.idSede == id).first()
-        return result
-
-    def get_sede(self,nombre):
+        resultado=self.db.query(sedesModel).filter(sedesModel.idSede == id).first()
+        return resultado
+    #nota cuidado que repitas los metodos
+    def get_sede_for_name(self,nombre):
         result=self.db.query(sedesModel).filter(sedesModel.nombre==nombre).first()
         return result
-        
+
     def crate_sede(self,sede:Sedes):
         new_sede=sedesModel(**sede.dict())
         self.db.add(new_sede)
         self.db.commit()
         return "se logro"
+        
     def update_sede(self,id:int, data:Sedes):
         sede=self.db.query(sedesModel).filter(sedesModel.idSede == id).first()
         sede.nombre = data.nombre

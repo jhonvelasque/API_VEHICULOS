@@ -4,6 +4,7 @@ from routes.sede import sede
 from routes.vehiculo import vehiculo
 from routes.vendedor import vendedor
 from middlewares.error import ErrorHander
+from config.databases import engine,Base
 #primer parametro http
 app =FastAPI()
 app.title="mi primera api"
@@ -14,4 +15,4 @@ app.include_router(vehiculo)
 app.include_router(vendedor)
 
 #creacion de base de datos sino la tienes
-#Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
