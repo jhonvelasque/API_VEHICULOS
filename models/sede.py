@@ -1,9 +1,13 @@
-from config.databases import Base
-from sqlalchemy import Column, Integer, String, Float, Date, Table
-from config.databases import meta ,engine
+from config.databases import Base 
+from sqlalchemy import Column, Integer, String, Float,Date ,Table
+from config.databases import meta
 
-sedes = Table("sede", meta, Column("idSede", Integer, primary_key=True),
-             Column("nombre", String(255)),
-             Column("ubicacion", String(255)))
 
-meta.create_all(engine)
+class sede(Base):
+    #el nombre  de la tabla debes estar iguala la que creaste
+    __tablename__ = "sede"
+
+    idSede = Column(Integer, primary_key = True)
+    nombre = Column(String(250))
+    ubicacion = Column(String)
+    

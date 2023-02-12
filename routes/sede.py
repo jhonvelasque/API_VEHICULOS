@@ -1,44 +1,72 @@
-from fastapi import APIRouter,Response 
+from fastapi import APIRouter,Response , HTTPException, Path, Query, Request
 #importando la conexion
-from config.databases import conn 
+from config.databases import conn ,Session, engine, Base
 #importando el squema
-from models.sede import sedes as sedesModel
+from models.sede import sede as sedesModel
 #PARA PEDIRLE
 sede = APIRouter()
+from typing import  List
+from pydantic import BaseModel, Field
 from schemas.sede import Sedes
 # CREAR PETICIONES
 from fastapi.responses import HTMLResponse ,JSONResponse
+from fastapi.encoders import jsonable_encoder
 from cryptography.fernet import Fernet
 #permite hacer unico los cifrados
 key=Fernet.generate_key()
 f= Fernet(key)
-"""
-@sede.get("/sede")
-def get_users():
-    return 'helo' #conn.execute(sede.select()).fetchall()
-"""
-@sede.get("/sede1/",tags=['sede'])
-def get_sede():
-    return print(conn.execute(sedesModel.select()).fetchall())
 
-@sede.get("/sede/{id}",tags=['sede'])
-def get_sede(id:str):
-    print(conn.execute(sedesModel.select().where(sedesModel.c.idSede==id)).first())
-    #return HTMLResponse(content=(conn.execute(sedes.select().where(sedes.c.idSede==id)).first()))
-    #ver como mostrarlo en pantalla 
-@sede.post("/sede",tags=['sede'],response_model=dict)
+Base.metadata.create_all(bind=engine)
+
+@sede.get("/sede",tags=['sede'],response_model=list[Sedes],status_code=200)
+def get_sedes()->list[Sedes]:
+    db=Session()
+    result=db.query(sedesModel).all()
+    return JSONResponse(status_code=200,content=jsonable_encoder(result))
+
+@sede.get("/sede/",tags=['sede'],response_model=list[Sedes],status_code=200)
+def get_sedes_by_nombre(nombre:str)->list[Sedes] :
+    db=Session()
+    result=db.query(sedesModel).filter(sedesModel.nombre == nombre).first()
+    if not result:
+        return JSONResponse(status_code=404,content={"message":'no encontrado'})
+    return JSONResponse(status_code=202,content=jsonable_encoder(result))
+
+
+@sede.get("/sede/{id}",tags=['sede'],response_model=Sedes)
+def get_sede(id:int)->Sedes:
+    db=Session()
+    result=db.query(sedesModel).filter(sedesModel.idSede == id).first()
+    if not result:
+        return JSONResponse(status_code=404 ,content={"message":'no encontrado'})
+    return JSONResponse(status_code=200,content=jsonable_encoder(result))
+
+@sede.post("/sede",tags=['sede'],response_model=dict,status_code=201)
 def create_sede(sede:Sedes) ->dict:
-    """new_sede={"idSede":sede.idSede,
-                "nombre":sede.nombre,
-                "ubicacion":sede.ubicacion}
-    #new_sede["idsede"]=f.encrypt(sede.password.encode("utf-8"))
-    resultado=conn.execute(sedes.insert().values(new_sede))
-    #sedes hace referencia al shema creado
-    print ((conn.execute(sedes.select().where(sedes.c.idSede==resultado.lastrowid))).first())"""
     #platzi
-    db =Se
+    db =Session()
+    new_sede=sedesModel(**sede.dict())
+    db.add(new_sede)
+    db.commit()
+    return JSONResponse(status_code=201,content={"message":"se añadio registro"})
 
-@sede.delete("/sede/{id}",tags=['sede'])
-def delete_sede(id:int):
-    reult=conn.execute(sedes.delete().where(sedes.c.idSede==id))
-    return Response(status_code=204)
+@sede.put('/sede/{id}',tags=['sede'],response_model=dict,status_code=200,)
+def update_sedes(id:int ,sede:Sedes)->dict:
+    db=Session()
+    result=db.query(sedesModel).filter(sedesModel.idSede==id).first()
+    if not result:
+        return JSONResponse(status_code=404 ,content={"message":'no encontrado'})
+    result.nombre=sede.nombre
+    result.ubicacion=sede.ubicacion
+    db.commit()
+    return JSONResponse(status_code=200,content=jsonable_encoder(result))
+
+@sede.delete("/sede/{id}",tags=['sede'],response_model=dict,status_code=200)
+def delete_sede(id:int)->dict:
+    db=Session()
+    result=db.query(sedesModel).filter(sedesModel.idSede==id).first()
+    if not result:
+        return JSONResponse(status_code=404,content={'message':"no encontrado"})
+    db.delete(result)
+    db.commit()
+    return JSONResponse(status_code=200,content=jsonable_encoder(result))
