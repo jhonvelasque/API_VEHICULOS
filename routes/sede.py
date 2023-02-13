@@ -9,7 +9,7 @@ from typing import  List
 from pydantic import BaseModel, Field
 from schemas.sede import Sedes
 # CREAR PETICIONES
-from fastapi.responses import HTMLResponse ,JSONResponse
+from fastapi.responses import HTMLResponse,JSONResponse
 from fastapi.encoders import jsonable_encoder
 # incluyendo servicios
 from services.sedes import SedeService
